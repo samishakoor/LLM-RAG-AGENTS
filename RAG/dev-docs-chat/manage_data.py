@@ -10,6 +10,7 @@ import os
 
 
 def clear_vector_store():
+    """Clear all documents from the vector store."""
     docs = vector_store.get()
     if docs.get("ids", None):
         # Delete all documents by their IDs
@@ -19,14 +20,15 @@ def clear_vector_store():
         print("Vectorstore is already empty")
 
 
-
 def clean_record_files():
+    """Delete the uploads directory and all record files."""
     # Delete the record files directory
     if os.path.exists(UPLOADS_DIR):
         shutil.rmtree(UPLOADS_DIR)
 
 
 def delete_embeddings_by_source(source_path):
+    """Delete embeddings from vector store based on source path."""
     try:
         # Delete documents where source_path matches
         vector_store._collection.delete(where={"source_path": source_path})
@@ -38,6 +40,7 @@ def delete_embeddings_by_source(source_path):
 
 
 def delete_document(file_name):
+    """Delete a specific file and its embeddings from the system."""
     if not file_name:
         return "❌ Please select a file to delete from the dropdown"
 
@@ -54,6 +57,7 @@ def delete_document(file_name):
 
 
 def delete_url(url):
+    """Delete a specific URL and its embeddings from the system."""
     if not url:
         return "❌ Please select a URL to delete from the dropdown"
 
@@ -70,6 +74,7 @@ def delete_url(url):
 
 
 def clear_all_data():
+    """Clear all data including vector store, uploaded files, and URL records."""
     try:
         # Clear all documents from vector store
         clear_vector_store()

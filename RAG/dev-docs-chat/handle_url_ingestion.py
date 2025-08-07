@@ -6,18 +6,22 @@ from shared_utils import chunk_and_embed_docs, UPLOADS_DIR, upload_url_dir
 
 
 def save_uploaded_url_record(url):
+    """Save URL record to the uploaded URLs file."""
     os.makedirs(UPLOADS_DIR, exist_ok=True)
     with open(upload_url_dir, "a") as f:
         f.write(f"{url.strip()}\n")
 
 
 def get_uploaded_urls():
+    """Retrieve list of all uploaded URLs from the record file."""
     if not os.path.exists(upload_url_dir):
         return []
     with open(upload_url_dir, "r") as f:
         return [line.strip() for line in f.readlines()]
 
+
 def delete_url_record(url):
+    """Remove a specific URL from the uploaded URLs record file."""
     urls = get_uploaded_urls()
     if not urls:
         return
@@ -28,6 +32,7 @@ def delete_url_record(url):
 
 
 def validate_and_check_url(url):
+    """Validate URL format and check if it's reachable."""
     # Step 1: Basic format validation
     if not url.startswith("https://"):
         print(f"URL must start with https://: {url}")
@@ -54,6 +59,7 @@ def validate_and_check_url(url):
 
 
 def check_duplicate_url(url):
+    """Check if a URL has already been uploaded."""
     for u in get_uploaded_urls():
         if u == url:
             return True
@@ -61,6 +67,7 @@ def check_duplicate_url(url):
 
 
 def url_upload_handler(url):
+    """Process and embed documents from a given URL."""
     input_url = url.strip()
     if not input_url:
         return "❌ Please enter a URL to ingest"

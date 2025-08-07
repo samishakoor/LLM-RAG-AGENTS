@@ -17,7 +17,7 @@ load_dotenv()
 # --- Tab 1: Upload Documents UI ---
 def file_upload_ui():
     with gr.Row():
-        with gr.Column(scale=0.3):
+        with gr.Column(scale=3):
             gr.Markdown(
                 """
             ## 📁 File Upload Instructions
@@ -42,7 +42,7 @@ def file_upload_ui():
             """
             )
 
-        with gr.Column(scale=0.7):
+        with gr.Column(scale=7):
             file_input = gr.File(
                 label="Upload File", file_types=[".pdf", ".md", ".txt"]
             )
@@ -59,7 +59,7 @@ def file_upload_ui():
 # --- Tab 2: Upload URLs UI ---
 def url_upload_ui():
     with gr.Row():
-        with gr.Column(scale=0.3):
+        with gr.Column(scale=3):
             gr.Markdown(
                 """
             ## 🌐 URL Ingestion Instructions
@@ -81,10 +81,15 @@ def url_upload_ui():
             - Web content becomes searchable in the "Ask Questions" tab
             - You can manage ingested URLs in the "Manage Data" tab
             - Multiple URLs can be ingested to build a comprehensive knowledge base
+            
+            **Tips:**
+            - Use documentation sites, articles, or blog posts for best results
+            - Avoid social media or dynamic JavaScript-heavy sites
+            - Large pages may take longer to process
             """
             )
 
-        with gr.Column(scale=0.7):
+        with gr.Column(scale=7):
             url_input = gr.Textbox(label="Enter URL", placeholder="https://example.com")
             output = gr.Textbox(label="Status")
 
@@ -233,7 +238,7 @@ def chat_ui():
 
 
 # --- Main Interface ---
-with gr.Blocks(title="📘 Developer Docs Assistant") as demo:
+with gr.Blocks(title="Developer Docs Assistant") as demo:
     gr.Markdown(
         """
     # 📘 **Developer Docs Assistant**
