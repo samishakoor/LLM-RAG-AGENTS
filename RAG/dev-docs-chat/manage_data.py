@@ -15,9 +15,9 @@ def clear_vector_store():
     if docs.get("ids", None):
         # Delete all documents by their IDs
         vector_store.delete(ids=docs["ids"])
-        print(f"Deleted {len(docs['ids'])} documents from vectorstore")
+        print(f"\n\nDeleted {len(docs['ids'])} documents from vectorstore")
     else:
-        print("Vectorstore is already empty")
+        print("\n\nVectorstore is already empty")
 
 
 def clean_record_files():
@@ -53,6 +53,7 @@ def delete_document(file_name):
     # Remove from record
     delete_file_record(file_name)
 
+    print(f"\n\nDeleted File: {file_name}\nDeleted Embeddings for: {file_name}\n\n")
     return f"Deleted File: {file_name}\nDeleted Embeddings for: {file_name}"
 
 
@@ -70,6 +71,7 @@ def delete_url(url):
     # Remove from record
     delete_url_record(url)
 
+    print(f"\n\nDeleted URL: {url}\nDeleted Embeddings for: {url}\n\n")
     return f"Deleted URL: {url}\nDeleted Embeddings for: {url}"
 
 
@@ -78,10 +80,9 @@ def clear_all_data():
     try:
         # Clear all documents from vector store
         clear_vector_store()
-        print("Deleted all documents from vector store")
 
         # Clear uploaded files and URLs records
         clean_record_files()
-        print("Deleted all uploaded files and URLs records")
+        print("Deleted all uploaded files and URLs records\n\n")
     except Exception as e:
         print(f"Error clearing data: {str(e)}")

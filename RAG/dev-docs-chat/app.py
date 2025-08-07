@@ -10,6 +10,7 @@ from handle_url_ingestion import (
 )
 from manage_data import delete_document, delete_url, clear_all_data
 from handle_chat import handle_chat
+from shared_utils import SUPPORTED_FILE_TYPES
 
 load_dotenv()
 
@@ -17,35 +18,38 @@ load_dotenv()
 # --- Tab 1: Upload Documents UI ---
 def file_upload_ui():
     with gr.Row():
-        with gr.Column(scale=3):
+        with gr.Column(scale=2):
             gr.Markdown(
                 """
             ## 📁 File Upload Instructions
             
-            **How to upload documents:**
-            
-            1. **Select File**: Choose a PDF, TXT, or Markdown file from your computer
+            **📋 How to upload documents:**
+            1. **Select File**: Choose a supported document from your computer (PDF, Word, Excel, PowerPoint, CSV, Markdown, or Text)
             2. **Click Upload**: The file will be processed and embedded into the knowledge base
             3. **Wait for Processing**: The system will extract text, chunk it, and create embeddings
             4. **Check Status**: Look for the green ✅ success message when complete
             
-            **Supported Formats:**
-            - 📄 PDF files (.pdf)
-            - 📝 Text files (.txt)
-            - 📋 Markdown files (.md)
-            - ❌ No duplicate file upload allowed
+            **📄 Supported Formats:**
+            - PDF files (.pdf)
+            - Text files (.txt)
+            - Markdown files (.md, .markdown)
+            - Excel files (.xlsx, .xls)
+            - Word files (.docx, .doc)
+            - PowerPoint files (.pptx, .ppt)
+            - CSV files (.csv)
             
-            **What happens next:**
+            **⚠️ Warning:**
+            - No duplicate files upload allowed!
+            
+            **🚀 What happens next:**
             - Your document will be searchable in the "Ask Questions" tab
             - You can manage uploaded files in the "Manage Data" tab
             - Multiple files can be uploaded to build a comprehensive knowledge base
             """
             )
 
-        with gr.Column(scale=7):
-            file_input = gr.File(
-                label="Upload File", file_types=[".pdf", ".md", ".txt"]
-            )
+        with gr.Column(scale=8):
+            file_input = gr.File(label="Upload File", file_types=SUPPORTED_FILE_TYPES)
             output = gr.Textbox(label="Status")
 
             upload_button = gr.Button("📤 Ingest File", variant="primary")
@@ -59,38 +63,36 @@ def file_upload_ui():
 # --- Tab 2: Upload URLs UI ---
 def url_upload_ui():
     with gr.Row():
-        with gr.Column(scale=3):
+        with gr.Column(scale=2):
             gr.Markdown(
                 """
             ## 🌐 URL Ingestion Instructions
             
-            **How to ingest web content:**
-            
-            1. **Enter URL**: Paste a valid HTTPS URL (e.g., https://example.com)
+            **📋 How to ingest web content:**
+            1. **Enter URL**: Paste a valid HTTPS URL (e.g., https://www.example.com)
             2. **Click Ingest**: The webpage will be scraped and processed
             3. **Wait for Processing**: Content will be extracted, chunked, and embedded
             4. **Check Status**: Look for the green ✅ success message when complete
             
-            **URL Requirements:**
-            - ✅ Must start with `https://`
-            - ✅ Must be a valid, accessible webpage
-            - ✅ Should contain readable text content
-            - ❌ No duplicate URLs allowed
+            **📄 URL Requirements:**
+            - Must start with `https://`
+            - Must be a valid, accessible webpage
+            - Should contain readable text content
             
-            **What happens next:**
+            **⚠️ Warning:**
+            - No duplicate URLs allowed!
+            
+            **🚀 What happens next:**
             - Web content becomes searchable in the "Ask Questions" tab
             - You can manage ingested URLs in the "Manage Data" tab
             - Multiple URLs can be ingested to build a comprehensive knowledge base
-            
-            **Tips:**
-            - Use documentation sites, articles, or blog posts for best results
-            - Avoid social media or dynamic JavaScript-heavy sites
-            - Large pages may take longer to process
             """
             )
 
-        with gr.Column(scale=7):
-            url_input = gr.Textbox(label="Enter URL", placeholder="https://example.com")
+        with gr.Column(scale=8):
+            url_input = gr.Textbox(
+                label="Document URL", placeholder="https://www.example.com"
+            )
             output = gr.Textbox(label="Status")
 
             upload_button = gr.Button("🌐 Ingest URL", variant="primary")

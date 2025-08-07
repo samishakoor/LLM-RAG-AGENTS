@@ -1,9 +1,16 @@
 import os
+from langchain.document_loaders import (
+    CSVLoader,
+    UnstructuredExcelLoader,
+    UnstructuredPowerPointLoader,
+    UnstructuredWordDocumentLoader,
+)
 from langchain_community.document_loaders import (
     UnstructuredMarkdownLoader,
     TextLoader,
     PyPDFLoader,
 )
+from langchain_community.vectorstores.utils import filter_complex_metadata
 from shared_utils import chunk_and_embed_docs, UPLOADS_DIR, upload_file_dir
 
 
@@ -47,13 +54,26 @@ def load_documents_from_file(file_path):
     elif ext in [".md", ".markdown"]:
         loader = UnstructuredMarkdownLoader(file_path)
     elif ext == ".txt":
-        loader = TextLoader(file_path)
+        loader = TextLoader(file_path, encoding="utf-8")
+    elif ext in [".xlsx", ".xls"]:
+        loader = UnstructuredExcelLoader(
+            file_path,
+            mode="elements",
+        )
+    elif ext in [".docx", ".doc"]:
+        loader = UnstructuredWordDocumentLoader(file_path)
+    elif ext in [".pptx", ".ppt"]:
+        loader = UnstructuredPowerPointLoader(file_path)
+    elif ext in [".csv"]:
+        loader = CSVLoader(file_path, csv_args={"delimiter": ","})
     else:
         print(f"Unsupported file type: {ext}")
         return None
 
     try:
-        return loader.load()
+        docs = loader.load()
+        filtered_docs = filter_complex_metadata(docs)
+        return filtered_docs
     except Exception as e:
         print(f"Error loading file {file_path}: {e}")
         return None
@@ -78,7 +98,6 @@ def file_upload_handler(input_file):
         return "❌ File does not exist"
 
     file_name = os.path.basename(file_path)
-    print(f"File name: {file_name}")
 
     # Check for duplicate file
     if check_duplicate_file(file_name):
@@ -86,16 +105,17 @@ def file_upload_handler(input_file):
 
     try:
         # Load documents from file
-        print(f"Extracting docs from uploaded file: {file_path}")
+        print(f"Extracting docs from uploaded file: {file_name}")
         docs = load_documents_from_file(file_path)
 
         if not docs:
             return "❌ No docs found from the uploaded file"
 
+        # Chunk and embed file documents
         chunk_and_embed_docs(docs, source_type="file", source_path=file_path)
 
         # Save record
-        print(f"Saving record for file: {file_name}")
+        print(f"Saving record for file: {file_name}\n\n")
         save_uploaded_file_record(file_name)
 
         return f"✅ {file_name} processed and embedded successfully!"

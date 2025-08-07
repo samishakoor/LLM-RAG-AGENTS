@@ -16,12 +16,24 @@ UPLOADS_DIR = "uploads"
 upload_file_dir = os.path.join(UPLOADS_DIR, UPLOADED_FILE_RECORD)
 upload_url_dir = os.path.join(UPLOADS_DIR, UPLOADED_URL_RECORD)
 
+SUPPORTED_FILE_TYPES = [
+    ".pdf",
+    ".md",
+    ".txt",
+    ".xlsx",
+    ".xls",
+    ".docx",
+    ".doc",
+    ".pptx",
+    ".ppt",
+    ".csv",
+]
+
 # Initialize persistent vector store
 vector_store = Chroma(
     collection_name=COLLECTION_NAME,
     persist_directory=CHROMA_DB_DIR,
     embedding_function=OpenAIEmbeddings(model="text-embedding-3-small"),
-    collection_metadata={"hnsw:space": "cosine"},
 )
 
 

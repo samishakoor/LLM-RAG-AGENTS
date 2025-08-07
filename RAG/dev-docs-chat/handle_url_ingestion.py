@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 import os
 from langchain_community.document_loaders import UnstructuredURLLoader
+from langchain_community.vectorstores.utils import filter_complex_metadata
 import requests
 from shared_utils import chunk_and_embed_docs, UPLOADS_DIR, upload_url_dir
 
@@ -83,19 +84,20 @@ def url_upload_handler(url):
 
     try:
         # Load documents from URL
-        print(f"Extracting docs from URL: {input_url}")
+        print(f"\n\nExtracting docs from URL: {input_url}")
         loader = UnstructuredURLLoader(urls=[input_url])
 
         docs = loader.load()
+        filtered_docs = filter_complex_metadata(docs)
 
-        if not docs:
+        if not filtered_docs:
             return "❌ No documents found from the URL"
 
-        # Chunk and embed documents
-        chunk_and_embed_docs(docs, source_type="url", source_path=input_url)
+        # Chunk and embed URL documents
+        chunk_and_embed_docs(filtered_docs, source_type="url", source_path=input_url)
 
         # Save record
-        print(f"Saving record for URL: {input_url}")
+        print(f"Saving record for URL: {input_url}\n\n")
         save_uploaded_url_record(input_url)
 
         return f"✅ {input_url} processed and embedded successfully!"
