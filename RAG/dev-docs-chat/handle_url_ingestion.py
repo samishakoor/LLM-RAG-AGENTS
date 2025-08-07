@@ -2,24 +2,26 @@ from urllib.parse import urlparse
 import os
 from langchain_community.document_loaders import UnstructuredURLLoader
 import requests
-from shared_utils import vector_store, chunk_documents, UPLOADED_URL_RECORD
+from shared_utils import chunk_and_embed_docs, UPLOADS_DIR, upload_url_dir
 
 
 def save_uploaded_url_record(url):
-    with open(UPLOADED_URL_RECORD, "a") as f:
-        f.write(f"{url}\n")
+    os.makedirs(UPLOADS_DIR, exist_ok=True)
+    with open(upload_url_dir, "a") as f:
+        f.write(f"{url.strip()}\n")
 
 
 def get_uploaded_urls():
-    if not os.path.exists(UPLOADED_URL_RECORD):
+    if not os.path.exists(upload_url_dir):
         return []
-    with open(UPLOADED_URL_RECORD, "r") as f:
+    with open(upload_url_dir, "r") as f:
         return [line.strip() for line in f.readlines()]
-
 
 def delete_url_record(url):
     urls = get_uploaded_urls()
-    with open(UPLOADED_URL_RECORD, "w") as f:
+    if not urls:
+        return
+    with open(upload_url_dir, "w") as f:
         for u in urls:
             if u != url:
                 f.write(f"{u}\n")
@@ -60,7 +62,7 @@ def check_duplicate_url(url):
 
 def url_upload_handler(url):
     input_url = url.strip()
-    if not input_url :
+    if not input_url:
         return "❌ Please enter a URL to ingest"
 
     # Check for duplicate URL
@@ -76,18 +78,14 @@ def url_upload_handler(url):
         # Load documents from URL
         print(f"Extracting docs from URL: {input_url}")
         loader = UnstructuredURLLoader(urls=[input_url])
+
         docs = loader.load()
 
         if not docs:
             return "❌ No documents found from the URL"
 
-        # Chunk documents
-        print("Chunking documents...")
-        doc_splits = chunk_documents(docs)
-
-        # Add documents to vector store
-        print("Adding docs to vector store...")
-        vector_store.add_documents(doc_splits)
+        # Chunk and embed documents
+        chunk_and_embed_docs(docs, source_type="url", source_path=input_url)
 
         # Save record
         print(f"Saving record for URL: {input_url}")

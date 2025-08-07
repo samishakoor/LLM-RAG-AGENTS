@@ -2,13 +2,17 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from dotenv import load_dotenv
-
+import os
 load_dotenv()
 
 COLLECTION_NAME = "dev_docs"
 
 UPLOADED_URL_RECORD = "uploaded_urls.txt"
 UPLOADED_FILE_RECORD = "uploaded_files.txt"
+UPLOADS_DIR = "uploads"
+
+upload_file_dir = os.path.join(UPLOADS_DIR, UPLOADED_FILE_RECORD)
+upload_url_dir = os.path.join(UPLOADS_DIR, UPLOADED_URL_RECORD)
 
 vector_store = Chroma(
     collection_name=COLLECTION_NAME,
@@ -16,7 +20,17 @@ vector_store = Chroma(
     collection_metadata={"hnsw:space": "cosine"},
 )
 
-def chunk_documents(docs):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
-    doc_splits = text_splitter.split_documents(docs)
-    return doc_splits
+def chunk_and_embed_docs(docs, source_type, source_path):
+    # Add metadata to documents
+    for doc in docs:
+        doc.metadata["source_type"] = source_type
+        doc.metadata["source_path"] = source_path
+
+    # Chunk documents
+    print("Chunking documents...")
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+    chunks = text_splitter.split_documents(docs)
+        
+    # Add documents to vector store
+    print("Adding docs to vector store...")
+    vector_store.add_documents(chunks)

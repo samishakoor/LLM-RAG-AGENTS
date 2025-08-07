@@ -1,27 +1,28 @@
 import os
-from langchain_community.document_loaders import TextLoader
-from langchain_community.document_loaders import PyPDFLoader
-from shared_utils import vector_store, chunk_documents, UPLOADED_FILE_RECORD
+from langchain_community.document_loaders import UnstructuredMarkdownLoader, TextLoader, PyPDFLoader
+from shared_utils import chunk_and_embed_docs, UPLOADS_DIR, upload_file_dir
 
-
-def save_uploaded_file_record(filename, full_path):
-    with open(UPLOADED_FILE_RECORD, "a") as f:
-        f.write(f"{filename}|{full_path}\n")
+def save_uploaded_file_record(filename):
+    os.makedirs(UPLOADS_DIR, exist_ok=True)
+    with open(upload_file_dir, "a") as f:
+        f.write(f"{filename.strip()}\n")
 
 
 def get_uploaded_files():
-    if not os.path.exists(UPLOADED_FILE_RECORD):
+    if not os.path.exists(upload_file_dir):
         return []
-    with open(UPLOADED_FILE_RECORD, "r") as f:
-        return [line.strip().split("|") for line in f.readlines()]
-
+    with open(upload_file_dir, "r") as f:
+        files = [line.strip() for line in f.readlines()]
+        return files
 
 def delete_file_record(filename):
     files = get_uploaded_files()
-    with open(UPLOADED_FILE_RECORD, "w") as f:
-        for name, path in files:
+    if not files:
+        return
+    with open(upload_file_dir, "w") as f:
+        for name in files:
             if name != filename:
-                f.write(f"{name}|{path}\n")
+                f.write(f"{name}\n")
 
 
 def load_documents_from_file(file_path):
@@ -33,8 +34,10 @@ def load_documents_from_file(file_path):
     loader = None
     if ext == ".pdf":
         loader = PyPDFLoader(file_path)
-    elif ext in [".txt", ".md"]:
-        loader = TextLoader(file_path, encoding="utf-8")
+    elif ext in [".md", ".markdown"]:
+        loader = UnstructuredMarkdownLoader(file_path)
+    elif ext == ".txt":
+        loader = TextLoader(file_path)
     else:
         print(f"Unsupported file type: {ext}")
         return None
@@ -47,7 +50,7 @@ def load_documents_from_file(file_path):
 
 
 def check_duplicate_file(file_name):
-    for name, _ in get_uploaded_files():
+    for name in get_uploaded_files():
         if name == file_name:
             return True
     return False
@@ -68,27 +71,22 @@ def file_upload_handler(input_file):
     # Check for duplicate file
     if check_duplicate_file(file_name):
         return f"❌ File '{file_name}' is already uploaded. Please select a different file or remove the existing file first."
+    
+    try:
+        # Load documents from file
+        print(f"Extracting docs from uploaded file: {file_path}")
+        docs = load_documents_from_file(file_path)
 
-    # Load documents from file
-    print(f"Extracting docs from uploaded file: {file_path}")
-    docs = load_documents_from_file(file_path)
+        if not docs:
+            return "❌ No docs found from the uploaded file"
 
-    if not docs:
-        return "❌ No docs found from the uploaded file"
+        chunk_and_embed_docs(docs, source_type="file", source_path=file_path)
 
-    for doc in docs:
-        doc.metadata["source"] = file_name
+        # Save record
+        print(f"Saving record for file: {file_name}")
+        save_uploaded_file_record(file_name)
 
-    # Chunk documents
-    print("Chunking docs...")
-    doc_splits = chunk_documents(docs)
-
-    # Add documents to vector store
-    print("Adding docs to vector store...")
-    vector_store.add_documents(doc_splits)
-
-    # Save record
-    print(f"Saving record for file: {file_name}")
-    save_uploaded_file_record(file_name, file_path)
-
-    return f"✅ {file_name} processed and embedded successfully!"
+        return f"✅ {file_name} processed and embedded successfully!"
+    except Exception as e:
+        print(f"Error processing file {file_path}: {e}")
+        return f"❌ Error processing file: {str(e)}"
