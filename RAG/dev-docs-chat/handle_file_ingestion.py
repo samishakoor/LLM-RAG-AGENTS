@@ -1,14 +1,12 @@
 import os
-from langchain.document_loaders import (
-    CSVLoader,
-    UnstructuredExcelLoader,
-    UnstructuredPowerPointLoader,
-    UnstructuredWordDocumentLoader,
-)
 from langchain_community.document_loaders import (
     UnstructuredMarkdownLoader,
     TextLoader,
     PyPDFLoader,
+    CSVLoader,
+    UnstructuredExcelLoader,
+    UnstructuredPowerPointLoader,
+    UnstructuredWordDocumentLoader,
 )
 from langchain_community.vectorstores.utils import filter_complex_metadata
 from shared_utils import chunk_and_embed_docs, UPLOADS_DIR, upload_file_dir
