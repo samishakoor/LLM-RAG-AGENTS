@@ -9,8 +9,8 @@ from langchain_community.document_loaders import (
     UnstructuredWordDocumentLoader,
 )
 from langchain_community.vectorstores.utils import filter_complex_metadata
-from shared_utils import chunk_and_embed_docs, UPLOADS_DIR, upload_file_dir
-
+from shared_utils import UPLOADS_DIR, upload_file_dir
+from vectorstore import chunk_and_embed_documents
 
 def save_uploaded_file_record(filename):
     """Save file record to the uploaded files record file."""
@@ -110,7 +110,7 @@ def file_upload_handler(input_file):
             return "❌ No docs found from the uploaded file"
 
         # Chunk and embed file documents
-        chunk_and_embed_docs(docs, source_type="file", source_path=file_path)
+        chunk_and_embed_documents(docs, source_type="file", source_path=file_path)
 
         # Save record
         print(f"Saving record for file: {file_name}\n\n")

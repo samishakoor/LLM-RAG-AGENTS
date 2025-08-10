@@ -27,11 +27,12 @@ text_splitter = RecursiveCharacterTextSplitter(
 doc_splits = text_splitter.split_documents(docs)
 
 # Step 3: Create Vector Store
-vectorstore = Chroma.from_documents(
-    documents=doc_splits,
+vectorstore = Chroma(
     collection_name="python_docs",
     embedding=OpenAIEmbeddings(),
 )
+
+vectorstore.add_documents(doc_splits)
 retriever = vectorstore.as_retriever()
 
 # Step 4: Define Retrieval and Answer Generation Functions

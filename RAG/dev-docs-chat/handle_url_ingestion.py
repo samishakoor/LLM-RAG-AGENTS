@@ -3,8 +3,8 @@ import os
 from langchain_community.document_loaders import UnstructuredURLLoader
 from langchain_community.vectorstores.utils import filter_complex_metadata
 import requests
-from shared_utils import chunk_and_embed_docs, UPLOADS_DIR, upload_url_dir
-
+from shared_utils import UPLOADS_DIR, upload_url_dir
+from vectorstore import chunk_and_embed_documents
 
 def save_uploaded_url_record(url):
     """Save URL record to the uploaded URLs file."""
@@ -94,7 +94,7 @@ def url_upload_handler(url):
             return "❌ No documents found from the URL"
 
         # Chunk and embed URL documents
-        chunk_and_embed_docs(filtered_docs, source_type="url", source_path=input_url)
+        chunk_and_embed_documents(filtered_docs, source_type="url", source_path=input_url)
 
         # Save record
         print(f"Saving record for URL: {input_url}\n\n")

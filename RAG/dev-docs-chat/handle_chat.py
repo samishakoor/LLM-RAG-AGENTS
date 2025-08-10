@@ -2,7 +2,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
-from shared_utils import vector_store
+from vectorstore import vectorstore
 
 # set up the LLM
 llm = ChatOpenAI(model="gpt-4o-mini")
@@ -13,7 +13,7 @@ memory = ConversationBufferMemory(
 )
 
 # set up the retriever
-retriever = vector_store.as_retriever(search_kwargs={"k": 5})
+retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
 
 # Create a system message that includes the context
 system_message = """
