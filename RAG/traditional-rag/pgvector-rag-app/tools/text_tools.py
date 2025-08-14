@@ -67,47 +67,7 @@ class TextExtractionTool:
             print(f"[TEXT_EXTRACTION] Extraction failed: {str(e)}")
             raise ValueError(f"Failed to extract text from file: {str(e)}")
 
-    def detect_encoding(self, file_path: str) -> str:
-        """
-        Detect text file encoding.
-
-        Args:
-            file_path: Path to text file
-
-        Returns:
-            Detected encoding string
-        """
-        try:
-            # Try to import chardet for encoding detection
-            import chardet
-
-            with open(file_path, "rb") as f:
-                raw_data = f.read()
-                result = chardet.detect(raw_data)
-                return result["encoding"] or "utf-8"
-
-        except ImportError:
-            # Fallback: try common encodings
-            encodings = ["utf-8", "ascii", "latin-1", "cp1252"]
-
-            for encoding in encodings:
-                try:
-                    with open(file_path, "r", encoding=encoding) as f:
-                        f.read()
-                    return encoding
-                except UnicodeDecodeError:
-                    continue
-
-            # Default fallback
-            return "utf-8"
-        except Exception:
-            return "utf-8"
-
-
-class MarkdownExtractionTool:
-    """Tool for extracting and processing markdown documents."""
-
-    def extract_text(
+    def extract_markdown(
         self, file_path: str, original_filename: str = None
     ) -> List[Document]:
         """
@@ -146,3 +106,39 @@ class MarkdownExtractionTool:
         except Exception as e:
             print(f"[MARKDOWN_EXTRACTION] Extraction failed: {str(e)}")
             raise ValueError(f"Failed to extract text from file: {str(e)}")
+
+    def detect_encoding(self, file_path: str) -> str:
+        """
+        Detect text file encoding.
+
+        Args:
+            file_path: Path to text file
+
+        Returns:
+            Detected encoding string
+        """
+        try:
+            # Try to import chardet for encoding detection
+            import chardet
+
+            with open(file_path, "rb") as f:
+                raw_data = f.read()
+                result = chardet.detect(raw_data)
+                return result["encoding"] or "utf-8"
+
+        except ImportError:
+            # Fallback: try common encodings
+            encodings = ["utf-8", "ascii", "latin-1", "cp1252"]
+
+            for encoding in encodings:
+                try:
+                    with open(file_path, "r", encoding=encoding) as f:
+                        f.read()
+                    return encoding
+                except UnicodeDecodeError:
+                    continue
+
+            # Default fallback
+            return "utf-8"
+        except Exception:
+            return "utf-8"

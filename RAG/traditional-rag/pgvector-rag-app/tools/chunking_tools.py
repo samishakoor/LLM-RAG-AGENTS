@@ -241,6 +241,10 @@ class TextChunkingTool:
             # Plain text may need more aggressive splitting
             print(f"[CHUNKING_TOOL] Using recursive character chunking for text")
             return self.chunk_documents(documents, detected_language)
+        elif content_type == "csv":
+            # CSV files may have structured data
+            print(f"[CHUNKING_TOOL] Using paragraph chunking for CSV")
+            return self.chunk_documents(documents, detected_language)
         else:
             # Default to recursive splitting
             print(

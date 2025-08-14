@@ -7,7 +7,7 @@ from langchain_core.documents import Document
 class CSVExtractionTool:
     """Tool for extracting and processing CSV documents."""
 
-    def extract_csv(
+    def extract_text(
         self,
         file_path: str,
         original_filename: Optional[str] = None,

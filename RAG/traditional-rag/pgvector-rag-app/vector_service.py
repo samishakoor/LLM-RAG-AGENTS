@@ -110,6 +110,7 @@ class VectorService:
 
         try:
             # Ensure table exists first
+            print(f"[VECTOR_SERVICE] Ensuring {collection_name} table exists ")
             self._ensure_table_exists(collection_name)
 
             # Use shared engine instead of creating new one
@@ -207,9 +208,6 @@ class VectorService:
             if search_kwargs:
                 default_search_kwargs.update(search_kwargs)
 
-            # SERVICE RESPONSIBILITY: Ensure table exists
-            self._ensure_table_exists(collection_name)
-
             # SERVICE RESPONSIBILITY: Create retriever using pre-created vector store
             print(f"[VECTOR_SERVICE] Creating retriever using existing vector store")
             vector_store = self._get_vector_store(collection_name)
@@ -253,9 +251,6 @@ class VectorService:
             # SERVICE RESPONSIBILITY: Prepare search filter (no project_id needed due to table isolation)
             search_filter = filter_dict if filter_dict else None
 
-            # SERVICE RESPONSIBILITY: Ensure table exists
-            self._ensure_table_exists(collection_name)
-
             # SERVICE RESPONSIBILITY: Perform search using pre-created vector store
             print(f"[VECTOR_SERVICE] Performing search using existing vector store")
             vector_store = self._get_vector_store(collection_name)
@@ -298,10 +293,6 @@ class VectorService:
             print(f"[VECTOR_SERVICE] Adding metadata to {len(documents)} documents")
             for doc in documents:
                 doc.metadata.update({"collection": collection_name})
-
-            # SERVICE RESPONSIBILITY: Ensure table exists (infrastructure)
-            print(f"[VECTOR_SERVICE] Ensuring {collection_name} table exists ")
-            self._ensure_table_exists(collection_name)
 
             # SERVICE RESPONSIBILITY: Store documents using pre-created vector store
             print(f"[VECTOR_SERVICE] Storing documents using existing vector store")

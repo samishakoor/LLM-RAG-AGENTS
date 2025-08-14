@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from uuid import UUID
 from langchain_openai import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
@@ -74,11 +75,27 @@ class RAGChain:
 
         return rag_chain
 
-    def query_documents(self, message: str) -> str:
+    def query_documents(self, message: str) -> Dict[str, Any]:
         """Query the documents using this RAG chain instance."""
         try:
             response = self.chain.invoke({"question": message})
             answer = response.get("answer", "")
-            return answer
+            source_documents = response.get("source_documents", [])
+
+            # Format source documents
+            sources = []
+            for doc in source_documents:
+                sources.append({
+                    "content": doc.page_content[:200] + "..." if len(doc.page_content) > 200 else doc.page_content,
+                    "metadata": doc.metadata
+                })
+
+            return {
+                "answer": answer,
+                "sources": sources,
+                "resource_id": self.resource_id,
+                "question": message,
+                "document_count": len(source_documents),
+            }
         except Exception as e:
             return f"I encountered an error: {str(e)}. Please try again."
