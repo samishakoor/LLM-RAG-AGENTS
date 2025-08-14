@@ -2,7 +2,7 @@ import os
 from typing import List
 from langchain_community.document_loaders import UnstructuredURLLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_openai.chat_models import ChatOpenAI
 from dotenv import load_dotenv
@@ -29,7 +29,7 @@ doc_splits = text_splitter.split_documents(docs)
 # Step 3: Create Vector Store
 vectorstore = Chroma(
     collection_name="python_docs",
-    embedding=OpenAIEmbeddings(),
+    embedding_function=OpenAIEmbeddings(),
 )
 
 vectorstore.add_documents(doc_splits)
@@ -37,7 +37,8 @@ retriever = vectorstore.as_retriever()
 
 # Step 4: Define Retrieval and Answer Generation Functions
 def retrieve(question: str) -> List[str]:
-    documents = retriever.invoke(question)
+    # documents = retriever.invoke(question)   # METHOD 1 : Using retriever
+    documents = vectorstore.similarity_search(query=question, k=5)  # METHOD 2 : Using similarity search
     return [doc.page_content for doc in documents]
 
 def generate_answer(question: str, context: List[str]) -> str:
